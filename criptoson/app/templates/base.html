@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Crypto Tracker{% endblock %}</title>
+    <!-- Tailwind CSS via CDN para simplicidade -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js para os gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Estilos customizados simples */
+        :root { --main-bg: #f9fafb; --main-text: #1f2937; --card-bg: #ffffff; --border-color: #e5e7eb; }
+        html.dark { --main-bg: #111827; --main-text: #f9fafb; --card-bg: #1f2937; --border-color: #374151; }
+        body { background-color: var(--main-bg); color: var(--main-text); transition: background-color 0.3s, color 0.3s; }
+        .card { background-color: var(--card-bg); }
+        .data-table th, .data-table td { border-color: var(--border-color); }
+        .price-up { color: #22c55e; }
+        .price-down { color: #ef4444; }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 font-sans">
+    <nav class="bg-white dark:bg-gray-800 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <a href="{{ url_for('main.index', currency=currency) }}" class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">CryptoTracker</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <!-- Seletor de Moeda -->
+                    <div class="relative">
+                        <select id="currencySelector" class="bg-gray-200 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 focus:outline-none">
+                            <option value="brl" {% if currency == 'brl' %}selected{% endif %}>BRL (R$)</option>
+                            <option value="usd" {% if currency == 'usd' %}selected{% endif %}>USD ($)</option>
+                            <option value="eur" {% if currency == 'eur' %}selected{% endif %}>EUR (€)</option>
+                        </select>
+                    </div>
+                    <!-- Botão de Tema -->
+                    <button id="theme-toggle" type="button" class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none rounded-lg text-sm p-2.5">
+                        <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                        <svg id="theme-toggle-light-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="bg-{{ category }}-100 border border-{{ category }}-400 text-{{ category }}-700 px-4 py-3 rounded relative" role="alert">
+                    <span class="block sm:inline">{{ message }}</span>
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% if error %}
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-6" role="alert">
+                <strong class="font-bold">Ocorreu um erro:</strong>
+                <span class="block sm:inline">{{ error }}</span>
+            </div>
+        {% endif %}
+        
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="text-center py-4 text-gray-500 dark:text-gray-400 text-sm">
+        <p>Dados fornecidos pela <a href="https://www.coingecko.com/" target="_blank" rel="noopener noreferrer" class="text-indigo-600 dark:text-indigo-400 hover:underline">CoinGecko</a>.</p>
+        <p>Criado com Python, Flask & ❤️</p>
+    </footer>
+
+    <!-- Nosso JavaScript customizado -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

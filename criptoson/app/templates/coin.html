@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}{{ coin.name if coin else 'Moeda não encontrada' }} | Crypto Tracker{% endblock %}
+
+{% block content %}
+<div class="container mx-auto">
+    {% if coin %}
+    <!-- Cabeçalho da Moeda -->
+    <div class="flex items-center mb-6">
+        <img src="{{ coin.image }}" alt="{{ coin.name }}" class="w-12 h-12 mr-4 rounded-full">
+        <div>
+            <h1 class="text-4xl font-bold text-gray-900 dark:text-white">{{ coin.name }} <span class="text-2xl text-gray-500 dark:text-gray-400">{{ coin.symbol }}</span></h1>
+        </div>
+    </div>
+
+    <!-- Métricas Principais -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="card p-6 rounded-lg shadow-md">
+            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Preço ({{ currency|upper }})</h3>
+            <p class="text-3xl font-semibold mt-1">
+                {{ "{:,.2f}".format(coin.market_data.current_price) }}
+            </p>
+        </div>
+        <div class="card p-6 rounded-lg shadow-md">
+            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Variação 24h</h3>
+            <p class="text-3xl font-semibold mt-1 {% if coin.market_data.price_change_percentage_24h > 0 %}price-up{% else %}price-down{% endif %}">
+                {{ "%.2f"|format(coin.market_data.price_change_percentage_24h) }}%
+            </p>
+        </div>
+        <div class="card p-6 rounded-lg shadow-md">
+            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Volume 24h</h3>
+            <p class="text-3xl font-semibold mt-1">
+                {{ "{:,.0f}".format(coin.market_data.total_volume).replace(',', '.') }}
+            </p>
+        </div>
+        <div class="card p-6 rounded-lg shadow-md">
+            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Capitalização de Mercado</h3>
+            <p class="text-3xl font-semibold mt-1">
+                {{ "{:,.0f}".format(coin.market_data.market_cap).replace(',', '.') }}
+            </p>
+        </div>
+    </div>
+
+    <!-- Gráfico Histórico -->
+    <div class="card p-6 rounded-lg shadow-md">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-bold">Histórico de Preço</h2>
+            <div class="flex space-x-2">
+                <button class="time-range-btn px-3 py-1 text-sm rounded-md bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300" data-days="7">7D</button>
+                <button class="time-range-btn px-3 py-1 text-sm rounded-md bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300" data-days="30">30D</button>
+                <button class="time-range-btn px-3 py-1 text-sm rounded-md bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300" data-days="90">90D</button>
+            </div>
+        </div>
+        <div id="chart-container" style="height: 400px;">
+             <canvas id="priceChart"></canvas>
+        </div>
+        <div id="chart-loading" class="text-center py-16 hidden">Carregando dados do gráfico...</div>
+    </div>
+
+    <!-- Descrição -->
+    <div class="card p-6 rounded-lg shadow-md mt-8">
+        <h2 class="text-xl font-bold mb-4">Sobre {{ coin.name }}</h2>
+        <div class="prose dark:prose-invert max-w-none text-gray-600 dark:text-gray-300">
+            {{ coin.description|safe if coin.description else 'Nenhuma descrição disponível.' }}
+        </div>
+    </div>
+
+    <!-- Passa dados do backend para o JavaScript -->
+    <script>
+        const COIN_ID = "{{ coin.id }}";
+        const CURRENT_CURRENCY = "{{ currency }}";
+    </script>
+
+    {% else %}
+    <div class="text-center py-16">
+        <h1 class="text-4xl font-bold">Moeda não encontrada</h1>
+        <p class="mt-4 text-gray-500">A moeda que você está procurando não foi encontrada. Verifique o identificador e tente novamente.</p>
+        <a href="{{ url_for('main.index') }}" class="mt-8 inline-block bg-indigo-600 text-white font-bold py-2 px-4 rounded hover:bg-indigo-700">Voltar para a página inicial</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
